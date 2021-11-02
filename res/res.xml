@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/fun/bilo/demo">
+    <!-- <file>data/splashscreen.png</file> -->
+    <file compressed="true">ui/button_1.ui</file>
+    <!-- <file preprocess="xml-stripblanks">menumarkup.xml</file> -->
+    <!-- <file alias="example.css">data/example.css</file> -->
+  </gresource>
+</gresources>
