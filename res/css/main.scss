@@ -1,3 +1,8 @@
+$ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+$button_transition: all 200ms $ease-out-quad;
+
+
+
 scrolledwindow {
 	border: 0;
 }
@@ -41,12 +46,23 @@ scrolledwindow {
 		&:hover {
 			background-color: blueviolet;
 			background-image: image(blueviolet);
+			transition-duration: 500ms;
+			transition: $button_transition;
+
+			label {
+				color: white;
+			}
 		}
 
 		&:active {
 			background-color: blueviolet;
 			background-image: image(blueviolet);
-			// background-image: none;
+			transition-duration: 500ms;
+			transition: $button_transition;
+
+			label {
+				color: white;
+			}
 		}
 
 		&:focus {

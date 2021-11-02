@@ -6,4 +6,4 @@ build/
 .DS_Store
 
 .vscode
-
+res/css/*.css
