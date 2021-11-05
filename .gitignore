@@ -7,3 +7,4 @@ build/
 
 .vscode
 res/css/*.css
+.config

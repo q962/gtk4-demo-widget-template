@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <object class="GtkWindow" id="window">
+    <property name="visible">True</property>
+    <property name="can-focus">True</property>
+    <property name="receives-default">True</property>
+    <child>
+      <object class="GtkBox">
+        <child>
+          <object class="GtkButton">
+            <property name="label">退出程序</property>
+            <signal name="clicked" handler="quit_program" object="window" swapped="yes"/>
+          </object>
+        </child>
+        <child>
+          <object class="GtkButton">
+            <property name="label">重新打开窗口</property>
+            <signal name="clicked" handler="reload_ui" object="app"/>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

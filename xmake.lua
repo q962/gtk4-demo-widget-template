@@ -4,6 +4,7 @@ target("gtk4_demo1")
     set_kind("binary")
     set_pcheader("src/stdafx.h")
     set_rundir(".") -- 资源目录
+    set_runenv("PATH","$(GTK4_BIN_PATH)", os.getenv("PATH"));
 
     add_files("src/**.c")
     add_files("res/res.c")
@@ -23,9 +24,14 @@ target("gtk4_demo1")
     end)
 
     on_load(function(target)
+        import("core.project.config")
+        config.load(".config");
+
         -- 无法判断文件是否被修改，如有必要，写成函数遍历资源文件和输出文件对比日期
         os.run("glib-compile-resources --generate-header --sourcedir res res/res.xml")
         os.run("glib-compile-resources --generate-source --sourcedir res res/res.xml")
+
+        os.setenv("PKG_CONFIG_PATH", config.get("GTK4_DEBUG_PKG_CONFIG_PATH") or "", os.getenv("PKG_CONFIG_PATH"))
 
         target:add(
             find_packages(
