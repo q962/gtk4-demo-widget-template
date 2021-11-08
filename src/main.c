@@ -5,6 +5,37 @@
 #include "widgets/button_1.h"
 #include "res.h"
 
+gboolean activate_debug_flag = false;
+
+static void windows_motion_notify( GtkEventControllerMotion* self, gdouble x, gdouble y, GtkEventController* user_data )
+{
+	GtkWindow* win = gtk_event_controller_get_widget( self );
+	g_message( "%s: %lf,%lf", gtk_event_controller_get_name( self ), x, y );
+
+	gint w_w, w_h;
+
+	gtk_window_get_default_size( win, &w_w, &w_h );
+
+	if ( x > w_w + 30 || y > w_h + 30 ) {
+		// G_BREAKPOINT();
+		g_message( "other window" );
+	}
+
+	// if ( activate_debug_flag ) {
+	// 	G_BREAKPOINT();
+	// }
+}
+
+static void activate_debug_flag_func( GtkCheckButton* self, gpointer user_data )
+{
+	if ( gtk_check_button_get_active( self ) ) {
+		activate_debug_flag = true;
+	}
+	else {
+		activate_debug_flag = false;
+	}
+}
+
 static void reload_css( GtkCssProvider** provider )
 {
 	gtk_style_context_remove_provider_for_display( gdk_display_get_default(), GTK_STYLE_PROVIDER( *provider ) );
@@ -20,6 +51,12 @@ static void reload_ui( GtkApplication* app )
 {
 	GtkBuilder* builder = gtk_builder_new();
 
+	GtkBuilderScope* builder_callback_symbol = gtk_builder_cscope_new();
+	gtk_builder_cscope_add_callback_symbol( GTK_BUILDER_CSCOPE( builder_callback_symbol ),
+	                                        "activate_debug_flag_func",
+	                                        G_CALLBACK( activate_debug_flag_func ) );
+	gtk_builder_set_scope( builder, builder_callback_symbol );
+
 	gtk_builder_expose_object( builder, "Button1", G_OBJECT( button_1_new() ) );
 
 	GError* load_error = NULL;
@@ -34,9 +71,23 @@ static void reload_ui( GtkApplication* app )
 		g_object_unref( old_window );
 	}
 
-	GObject* window = gtk_builder_get_object( builder, "window" );
+	GtkWindow* window = GTK_WINDOW( gtk_builder_get_object( builder, "window" ) );
 
 	g_object_set_data( G_OBJECT( app ), "old_window", window );
+
+	{
+		GtkEventController* motion_m = gtk_event_controller_motion_new();
+		g_signal_connect( motion_m, "motion", G_CALLBACK( windows_motion_notify ), motion_m );
+
+		GString* ec_name = g_string_new( "metion" );
+		g_string_append_printf( ec_name, ": %d", g_get_monotonic_time() );
+
+		gtk_event_controller_set_name( motion_m, ec_name->str );
+
+		gtk_widget_add_controller( GTK_WIDGET( window ), motion_m );
+
+		g_string_free( ec_name, TRUE );
+	}
 
 	gtk_widget_show( GTK_WIDGET( window ) );
 
