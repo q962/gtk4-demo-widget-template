@@ -16,6 +16,9 @@
             <property name="visible">True</property>
             <property name="can-focus">False</property>
             <property name="orientation">vertical</property>
+            <style>
+              <class name="left_box"/>
+            </style>
             <child>
               <object class="GtkLabel">
                 <property name="visible">True</property>
@@ -27,12 +30,17 @@
               </object>
             </child>
             <child>
-              <object class="GtkSeparator">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
+              <object class="GtkBox">
+                <property name="orientation">vertical</property>
                 <style>
                   <class name="main_title_sep"/>
                 </style>
+                <child>
+                  <object class="GtkSeparator">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                  </object>
+                </child>
               </object>
             </child>
             <child>
@@ -46,6 +54,9 @@
                   <object class="GtkViewport">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
+                    <style>
+                      <class name="list-box" />
+                    </style>
                     <child>
                       <object class="GtkBox" id="btns">
                         <property name="visible">True</property>

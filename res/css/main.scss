@@ -1,8 +1,6 @@
 $ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
 $button_transition: all 200ms $ease-out-quad;
 
-
-
 scrolledwindow {
 	border: 0;
 }
@@ -16,6 +14,9 @@ scrolledwindow {
 .left_box {
 	/* box-shadow: 0 0px 20px 0px rgba(160, 160, 160, 255); */
 	/* background: linear-gradient(#e66465, #9198e5); */
+	background: linear-gradient(rgba(255, 255, 255, 0.493), rgba(255, 255, 255, 0.7)),
+		no-repeat 0 0 url("../images/52.jpg");
+	background-size: auto 100%;
 }
 
 .right_box {
@@ -30,9 +31,18 @@ scrolledwindow {
 }
 
 .main_title_sep {
-	margin-bottom: 30px;
+	// margin-bottom: 30px;
 	padding-left: 3em;
 	padding-right: 3em;
+
+	separator {
+		background-color: rgba(255, 255, 255, 0.226);
+		background-image: unset;
+	}
+}
+
+.list-box {
+	padding: 30px 0 30px 0;
 }
 
 .btns {
