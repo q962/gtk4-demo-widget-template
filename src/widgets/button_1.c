@@ -15,8 +15,6 @@ enum Property
 // G_DEFINE_TYPE( Button1, button_1, GTK_TYPE_BUTTON )
 G_DEFINE_TYPE_WITH_PRIVATE( Button1, button_1, GTK_TYPE_BUTTON )
 
-#define BUTTON_1_GET_PRIVATE( obj ) ( G_TYPE_INSTANCE_GET_PRIVATE( ( obj ), TYPE_BUTTON_1, Button1Private ) )
-
 static void _get_property( GObject* object, guint property_id, GValue* value, GParamSpec* pspec );
 static void _set_property( GObject* object, guint property_id, const GValue* value, GParamSpec* pspec );
 
@@ -52,14 +50,14 @@ static void button_1_class_init( Button1Class* klass )
 
 static void button_1_init( Button1* self )
 {
-	Button1Private* priv = BUTTON_1_GET_PRIVATE( self );
+	Button1Private* priv = button_1_get_instance_private( self );
 	gtk_widget_init_template( GTK_WIDGET( self ) );
 }
 
 void _set_property( GObject* object, guint property_id, const GValue* value, GParamSpec* pspec )
 {
 	Button1*        self = BUTTON_1( object );
-	Button1Private* priv = BUTTON_1_GET_PRIVATE( self );
+	Button1Private* priv = button_1_get_instance_private( self );
 
 	switch ( property_id ) {
 		case PROPERTY_ICON_TEXT: gtk_label_set_label( priv->icon_text, g_value_get_string( value ) ); break;
@@ -71,7 +69,7 @@ void _set_property( GObject* object, guint property_id, const GValue* value, GPa
 void _get_property( GObject* object, guint property_id, GValue* value, GParamSpec* pspec )
 {
 	Button1*        self = BUTTON_1( object );
-	Button1Private* priv = BUTTON_1_GET_PRIVATE( self );
+	Button1Private* priv = button_1_get_instance_private( self );
 
 	switch ( property_id ) {
 		case PROPERTY_ICON_TEXT: g_value_set_string( value, gtk_label_get_label( priv->icon_text ) ); break;
@@ -89,7 +87,7 @@ const char* button_1_get_text( Button1* self )
 {
 	g_return_val_if_fail( self, NULL );
 
-	Button1Private* priv = BUTTON_1_GET_PRIVATE( self );
+	Button1Private* priv = button_1_get_instance_private( self );
 
 	return gtk_label_get_label( priv->text );
 }

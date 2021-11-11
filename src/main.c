@@ -5,12 +5,10 @@
 #include "widgets/button_1.h"
 #include "res.h"
 
-gboolean activate_debug_flag = false;
-
 static void windows_motion_notify( GtkEventControllerMotion* self, gdouble x, gdouble y, GtkEventController* user_data )
 {
-	GtkWindow* win = gtk_event_controller_get_widget( self );
-	g_message( "%s: %lf,%lf", gtk_event_controller_get_name( self ), x, y );
+	GtkWindow* win = GTK_WINDOW( gtk_event_controller_get_widget( GTK_EVENT_CONTROLLER( self ) ) );
+	g_message( "%s: %lf,%lf", gtk_event_controller_get_name( GTK_EVENT_CONTROLLER( self ) ), x, y );
 
 	gint w_w, w_h;
 
@@ -19,20 +17,6 @@ static void windows_motion_notify( GtkEventControllerMotion* self, gdouble x, gd
 	if ( x > w_w + 30 || y > w_h + 30 ) {
 		// G_BREAKPOINT();
 		g_message( "other window" );
-	}
-
-	// if ( activate_debug_flag ) {
-	// 	G_BREAKPOINT();
-	// }
-}
-
-static void activate_debug_flag_func( GtkCheckButton* self, gpointer user_data )
-{
-	if ( gtk_check_button_get_active( self ) ) {
-		activate_debug_flag = true;
-	}
-	else {
-		activate_debug_flag = false;
 	}
 }
 
@@ -50,12 +34,6 @@ static void reload_css( GtkCssProvider** provider )
 static void reload_ui( GtkApplication* app )
 {
 	GtkBuilder* builder = gtk_builder_new();
-
-	GtkBuilderScope* builder_callback_symbol = gtk_builder_cscope_new();
-	gtk_builder_cscope_add_callback_symbol( GTK_BUILDER_CSCOPE( builder_callback_symbol ),
-	                                        "activate_debug_flag_func",
-	                                        G_CALLBACK( activate_debug_flag_func ) );
-	gtk_builder_set_scope( builder, builder_callback_symbol );
 
 	gtk_builder_expose_object( builder, "Button1", G_OBJECT( button_1_new() ) );
 
