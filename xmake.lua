@@ -13,30 +13,32 @@ target("gtk4_demo1")
 
     add_defines("UNICODE", "_UNICODE")
 
-    before_build(function(target)
-        import("lib.detect.find_program")
-
-        if not find_program("glib-compile-resources") then
-            print("缺少 glib-compile-resources 程序")
-            -- 输出个屁，如何优雅的终止程序，而不输出调用栈
-        end
-    end)
-
     on_load(function(target)
+        import("net.http")
         import("core.project.config")
-        config.load(".config");
+        config.load(".config")
+
+        if not os.isfile("./.xmake/xmakefuns.lua") then
+            http.download("https://cdn.jsdelivr.net/gh/q962/xmake_funs/xmake.funs.lua", ".xmake/xmakefuns.lua");
+            if not os.isfile("./.xmake/xmakefuns.lua") then
+                print("download fail");
+                os.exit();
+            end
+        end
+
+        import("xmakefuns", {alias = "lx", rootdir= ".xmake"});
+
+        os.addenv("PKG_CONFIG_PATH", config.get("GTK4_DEBUG_PKG_CONFIG_PATH") or "")
+
+        lx.need(target,
+            {"pkgconfig::gtk4 >= 4.4.0"},
+            {"*glib-compile-resources", "sassc", "stat"}
+        );
 
         -- 无法判断文件是否被修改，如有必要，写成函数遍历资源文件和输出文件对比日期
         os.run("glib-compile-resources --generate-header --sourcedir res res/res.xml")
         os.run("glib-compile-resources --generate-source --sourcedir res res/res.xml")
 
-        os.addenv("PKG_CONFIG_PATH", config.get("GTK4_DEBUG_PKG_CONFIG_PATH") or "")
-
-        target:add(
-            find_packages(
-                "pkgconfig::gtk4 >= 4.4.0"
-            )
-        );
         if is_host("windows") then
             target:add("links", "Gdi32") -- 加载字体函数
         end
@@ -44,8 +46,26 @@ target("gtk4_demo1")
     end)
 
     before_run(function()
-        if not os.isfile("res/css/main.css") then
-            print("需要编译 res/css/main.scss");
+        import("xmakefuns", {alias = "lx", rootdir= ".xmake"});
+        import("core.project.config")
+        config.load()
+
+        local is_ok = true;
+
+        for _, file_path in ipairs(os.files("$(projectdir)/res/css/*.scss")) do
+            local out_path = file_path:gsub("scss$","css");
+
+            if config.get("has_sassc") then
+                if not os.isfile(out_path) or lx.do_stat(out_path, file_path) then
+                    os.run("sassc " .. file_path .. " " .. out_path)
+                else
+                    cprint("${red}需要编译 " .. path.relative(file_path) .. " >> " .. path.relative(out_path))
+                    is_ok = false;
+                end
+            end
+        end
+
+        if not is_ok then
             os.exit();
         end
     end)
