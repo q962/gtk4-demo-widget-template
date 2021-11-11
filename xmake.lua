@@ -31,11 +31,12 @@ target("gtk4_demo1")
         os.run("glib-compile-resources --generate-header --sourcedir res res/res.xml")
         os.run("glib-compile-resources --generate-source --sourcedir res res/res.xml")
 
-        os.setenv("PKG_CONFIG_PATH", config.get("GTK4_DEBUG_PKG_CONFIG_PATH") or "", os.getenv("PKG_CONFIG_PATH"))
+        os.addenv("PKG_CONFIG_PATH", config.get("GTK4_DEBUG_PKG_CONFIG_PATH") or "")
 
         target:add(
             find_packages(
                 "pkgconfig::gtk4 >= 4.4.0"
             )
         );
+
     end)
