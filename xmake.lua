@@ -42,3 +42,10 @@ target("gtk4_demo1")
         end
 
     end)
+
+    before_run(function()
+        if not os.isfile("res/main/main.css") then
+            print("需要编译 res/main/main.scss");
+            os.exit();
+        end
+    end)
