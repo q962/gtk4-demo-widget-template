@@ -10,7 +10,6 @@ target("gtk4_demo1")
     add_files("res/res.c")
 
     add_includedirs("res") -- 资源文件
-    add_links("Gdi32") -- 加载字体
 
     add_defines("UNICODE", "_UNICODE")
 
@@ -38,5 +37,8 @@ target("gtk4_demo1")
                 "pkgconfig::gtk4 >= 4.4.0"
             )
         );
+        if is_host("windows") then
+            target:add("links", "Gdi32") -- 加载字体函数
+        end
 
     end)
