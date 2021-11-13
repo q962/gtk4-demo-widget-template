@@ -13,6 +13,8 @@ target("gtk4_demo1")
         import("core.project.config")
         config.load(".config")
 
+        config.set("APPID", "io.github.q962." .. target:name());
+
         if not os.isfile("./.xmake/xmakefuns.lua") then
             http.download("https://cdn.jsdelivr.net/gh/q962/xmake_funs/xmake.funs.lua", ".xmake/xmakefuns.lua");
             if not os.isfile("./.xmake/xmakefuns.lua") then
@@ -45,7 +47,7 @@ target("gtk4_demo1")
             target:add("defines", "RESDIR=\"res/\"");
             target:add("links", "Gdi32") -- 加载字体函数
         else
-            target:add("defines", "RESDIR=\"/usr/share/\"");
+            target:add("defines", vformat("RESDIR=\"/usr/share/${APPID}\""));
         end
 
         target:add("cflags", "-g3", "-gdwarf-2");
