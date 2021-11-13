@@ -8,7 +8,6 @@
 static void windows_motion_notify( GtkEventControllerMotion* self, gdouble x, gdouble y, GtkEventController* user_data )
 {
 	GtkWindow* win = GTK_WINDOW( gtk_event_controller_get_widget( GTK_EVENT_CONTROLLER( self ) ) );
-	g_message( "%s: %lf,%lf", gtk_event_controller_get_name( GTK_EVENT_CONTROLLER( self ) ), x, y );
 
 	gint w_w, w_h;
 
@@ -26,7 +25,7 @@ static void reload_css( GtkCssProvider** provider )
 	g_object_unref( *provider );
 
 	*provider = gtk_css_provider_new();
-	gtk_css_provider_load_from_path( *provider, "res/css/main.css" );
+	gtk_css_provider_load_from_path( *provider, RESPATH( "css/main.css" ) );
 	gtk_style_context_add_provider_for_display(
 	  gdk_display_get_default(), GTK_STYLE_PROVIDER( *provider ), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION );
 }
@@ -38,7 +37,7 @@ static void reload_ui( GtkApplication* app )
 	gtk_builder_expose_object( builder, "Button1", G_OBJECT( button_1_new() ) );
 
 	GError* load_error = NULL;
-	if ( !gtk_builder_add_from_file( builder, "res/ui/main.ui", &load_error ) ) {
+	if ( !gtk_builder_add_from_file( builder, RESPATH( "ui/main.ui" ), &load_error ) ) {
 		g_message( _( "%s" ), load_error->message );
 		g_error_free( load_error );
 		goto err;
@@ -101,7 +100,7 @@ static void activate( GtkApplication* app, gpointer user_data )
 	gtk_builder_set_scope( builder, builder_callback_symbol );
 
 	GError* load_error = NULL;
-	if ( !gtk_builder_add_from_file( builder, "res/ui/quit_win.ui", &load_error ) ) {
+	if ( !gtk_builder_add_from_file( builder, RESPATH( "ui/quit_win.ui" ), &load_error ) ) {
 		g_error( _( "%s" ), load_error->message );
 		g_error_free( load_error );
 	}
@@ -111,7 +110,7 @@ static void activate( GtkApplication* app, gpointer user_data )
 	gtk_window_set_application( GTK_WINDOW( window ), app );
 
 	GtkCssProvider* provider = gtk_css_provider_new();
-	gtk_css_provider_load_from_path( provider, "res/css/main.css" );
+	gtk_css_provider_load_from_path( provider, RESPATH( "css/main.css" ) );
 
 	gtk_style_context_add_provider_for_display(
 	  gdk_display_get_default(), GTK_STYLE_PROVIDER( provider ), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION );
@@ -119,8 +118,8 @@ static void activate( GtkApplication* app, gpointer user_data )
 	GtkCssProvider** provider_p = g_new( GtkCssProvider*, 1 );
 	*provider_p                 = provider;
 
-	lx_resource_monitor( "res/css/main.css", G_CALLBACK( reload_css ), provider_p );
-	lx_resource_monitor( "res/ui/main.ui", G_CALLBACK( reload_ui ), app );
+	lx_resource_monitor( RESPATH( "css/main.css" ), G_CALLBACK( reload_css ), provider_p );
+	lx_resource_monitor( RESPATH( "ui/main.ui" ), G_CALLBACK( reload_ui ), app );
 
 	reload_ui( app );
 
@@ -135,7 +134,7 @@ static void activate( GtkApplication* app, gpointer user_data )
 int main( int argc, char* argv[] )
 {
 #ifdef G_OS_WIN32
-	AddFontResourceEx( TEXT( "res/font/iconfont.ttf" ), FR_PRIVATE, 0 );
+	g_assert_cmpint( AddFontResourceEx( TRESPATH( "font/iconfont.ttf" ), FR_PRIVATE, 0 ), >, 0 );
 #endif
 
 	g_resources_register( res_get_resource() );
