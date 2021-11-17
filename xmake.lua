@@ -15,7 +15,7 @@ target("gtk4_demo1")
         config.load(".config")
 
         config.set("APPID", "io.github.q962." .. target:name());
-        target:add("defines", vformat("APPID=\"$(APPID)\""));
+        target:add("defines", "APPID=\""..config.get("APPID").."\"");
 
         if not os.isfile("./.xmake/xmakefuns.lua") then
             http.download("https://cdn.jsdelivr.net/gh/q962/xmake_funs/xmake.funs.lua", ".xmake/xmakefuns.lua");
@@ -26,13 +26,6 @@ target("gtk4_demo1")
         end
 
         import("xmakefuns", {alias = "lx", rootdir= ".xmake"});
-
-        if not os.isdir(path.join(target:targetdir(), "res")) then
-            local res_dir = path.join(path.relative(".", target:targetdir()), "res");
-            os.cd(target:targetdir());
-            os.ln(res_dir, "res");
-            os.cd(os.projectdir());
-        end
 
         os.addenv("PKG_CONFIG_PATH", config.get("GTK4_DEBUG_PKG_CONFIG_PATH"))
 
@@ -52,9 +45,36 @@ target("gtk4_demo1")
         end
 
         target:add("cflags", "-g3", "-gdwarf-2", "-Winvalid-pch");
+
+        local path_prefix = vformat("$(buildir)/app_"..config.get("mode"));
+
+        target:set("targetdir", path.join(path_prefix, "bin"));
+        if not os.isdir(path.join(path_prefix, "bin")   ) then os.mkdir(path.join(path_prefix, "bin")  ); end
+        if not os.isdir(path.join(path_prefix, "lib")   ) then os.mkdir(path.join(path_prefix, "lib")  ); end
+        if not os.isdir(path.join(path_prefix, "share") ) then os.mkdir(path.join(path_prefix, "share")); end
+        if not os.isdir(path.join(path_prefix, "share", config.get("APPID")) )
+            then os.mkdir(path.join(path_prefix, "share", config.get("APPID")));
+        end
+
+        local res_dir_path = path.join(path_prefix, "share", config.get("APPID"));
+        if not os.isdir(path.join(res_dir_path, "res")) then
+            local res_dir = path.join(path.relative(os.projectdir(), res_dir_path), "res");
+            os.cd(res_dir_path);
+            try {
+                function() os.ln(res_dir, "res"); end,
+                catch {
+                    function(errors)
+                        print(errors)
+                        cprint("${red}需要管理员权限，用于创建软连接");
+                        os.exit();
+                    end
+                }
+            }
+            os.cd(os.projectdir());
+        end
     end)
 
-    after_build(function()
+    after_build(function(target)
         import("xmakefuns", {alias = "lx", rootdir= ".xmake"});
         import("core.project.config")
         config.load()
@@ -80,7 +100,14 @@ target("gtk4_demo1")
     end)
 
     before_run(function(target)
-        target:add("runenv", vformat("$(APPID).RESPATH"), "res/");
+        import("core.project.config")
+        config.load();
+
+        -- target:add("runenv", vformat("$(APPID).RESPATH"), "res/");
+
+        if is_plat("mingw") then
+            target:add("runenv", "GTK_DATA_PREFIX", config.get("mingw"));
+        end
     end)
 
     on_install(function(target)
@@ -94,11 +121,17 @@ target("gtk4_demo1")
             os.exit();
         end
 
+        local dllsuffix = is_host("windows") and ".dll" or ".so";
+        local exesuffix = is_host("windows") and ".exe" or "";
+
         local pkg_vars = config.get("pkg_vars") or {};
         if #pkg_vars == 0 then
             for packagename, vars in pairs({
                 ["gio-2.0"] = {
-                    "gdbus"
+                    "prefix",
+                    "gdbus",
+                    "schemasdir",
+                    "giomoduledir"
                 },
                 gtk4 = {
                     "prefix"
@@ -122,36 +155,40 @@ target("gtk4_demo1")
             config.save();
         end
 
-        local function find_dep(target)
-            import("core.project.config")
-
-            local outdlls = {};
+        local outdlls = {};
+        local function find_dep(dep_path)
+            local dep_dlls = {};
             local function get_dll_deps(dllname)
                 local deps_str = os.iorunv("ldd", { dllname });
                 for _, v in ipairs(deps_str:split("\n")) do
                     local dll = v:split(" ")[3];
                     if dll and not outdlls[dll] and dll:match("^/[^c]") then
                         outdlls[dll] = true;
+                        dep_dlls[dll] = true;
                         get_dll_deps(dll)
                     end
                 end
             end
 
-            get_dll_deps(target:targetfile());
-            get_dll_deps(pkg_vars["gio-2.0"].gdbus .. (is_plat("mingw") and ".exe" or ""));
+            get_dll_deps(dep_path);
 
-            return outdlls;
-        end
-
-        local deps = find_dep(target);
-
-        for v, _ in pairs(deps) do
-            if not os.isfile(path.join(target:installdir(), "bin", path.filename(v))) then
-                os.cp(path.join(config.get("mingw"), "..", v), path.join(target:installdir(), "bin") .. "/");
+            for v, _ in pairs(dep_dlls) do
+                if not os.isfile(path.join(target:installdir(), "bin", path.filename(v))) then
+                    if is_plat("mingw") then
+                        os.cp(path.join(config.get("mingw"), "..", v), path.join(target:installdir(), "bin") .. "/");
+                    else
+                        os.cp(v, path.join(target:installdir(), "bin") .. "/");
+                    end
+                end
             end
+            return dep_dlls;
         end
+
+        find_dep(target:targetfile());
+        find_dep(pkg_vars["gio-2.0"].gdbus .. exesuffix);
 
         local function cp(a, b)
+            a = a:gsub("\\", "/");
             print("copy", a);
             os.cp(a,b);
         end
@@ -161,12 +198,20 @@ target("gtk4_demo1")
         -- res
         cp(path.join(os.projectdir(), "res"), path.join(target:installdir(), "share", vformat("$(APPID)")) .. "/");
         -- gdbus
-        cp(pkg_vars["gio-2.0"].gdbus .. (is_plat("mingw") and ".exe" or ""), path.join(target:installdir(), "bin") .. "/");
+        cp(pkg_vars["gio-2.0"].gdbus .. exesuffix, path.join(target:installdir(), "bin") .. "/");
+        find_dep(pkg_vars["gio-2.0"].gdbus .. exesuffix)
         -- gtk dep file
         cp(path.join(pkg_vars.gtk4.prefix, "share", "gtk-4.0"), path.join(target:installdir(), "share") .. "/");
+        -- gstreamer
+        local module_gstreamer_path = path.join(pkg_vars.gtk4.prefix, "lib", "gtk-4.0", "4.0.0", "media", "libmedia-gstreamer" .. dllsuffix);
+        cp(
+            module_gstreamer_path,
+            path.join(target:installdir(), "lib", "gtk-4.0", "4.0.0", "media", "libmedia-gstreamer") .. "/"
+        );
+        find_dep(module_gstreamer_path)
         -- gdk dep file
         cp(
-            path.join(pkg_vars["gdk-pixbuf-2.0"].gdk_pixbuf_moduledir, is_plat("mingw") and "*.dll" or "*.so"),
+            path.join(pkg_vars["gdk-pixbuf-2.0"].gdk_pixbuf_moduledir, "*" .. dllsuffix),
             path.join(
                 target:installdir(),
                 path.relative(
@@ -174,6 +219,9 @@ target("gtk4_demo1")
                     pkg_vars["gdk-pixbuf-2.0"].prefix)
             ) .. "/"
         );
+        for _,v in ipairs(os.files(path.join(pkg_vars["gdk-pixbuf-2.0"].gdk_pixbuf_moduledir, "*" .. dllsuffix))) do
+            find_dep(v);
+        end
         -- gdk dep file
         cp(
             pkg_vars["gdk-pixbuf-2.0"].gdk_pixbuf_cache_file,
@@ -193,6 +241,43 @@ target("gtk4_demo1")
             path.join(pkg_vars["gdk-pixbuf-2.0"].prefix, "share", "locale", "zh_CN", "LC_MESSAGES", "gtk40-properties.mo"),
             path.join(target:installdir(), "share", "locale", "zh_CN", "LC_MESSAGES") .. "/"
         );
+        -- cp glib dep file
+        cp(
+            path.join(pkg_vars["gio-2.0"].schemasdir, "gschemas.compiled"),
+            path.join(
+                target:installdir(),
+                path.relative(
+                    pkg_vars["gio-2.0"].schemasdir,
+                    pkg_vars["gio-2.0"].prefix)
+            ) .. "/"
+        );
+        -- cp gio dep file
+        cp(
+            pkg_vars["gio-2.0"].giomoduledir,
+            path.join(
+                target:installdir(),
+                path.relative(
+                    pkg_vars["gio-2.0"].giomoduledir,
+                    pkg_vars["gio-2.0"].prefix),
+                ".."
+            ) .. "/"
+        );
+        for _,v in ipairs(os.files(path.join(pkg_vars["gio-2.0"].giomoduledir, "*" .. dllsuffix))) do
+            find_dep(v);
+        end
+        -- -- cp icons
+        -- if is_plat("mingw") then
+        --     cp(
+        --         path.join(config.get("mingw"), "share", "icons", "Adwaita"),
+        --         path.join(target:installdir(), "share", "icons") .. "/"
+        --     );
+        --     cp(
+        --         path.join(config.get("mingw"), "share", "icons", "hicolor"),
+        --         path.join(target:installdir(), "share", "icons") .. "/"
+        --     );
+        -- else
+        --     os.raise("需要手动指定 Adwaita\\hicolor 主题所在目录")
+        -- end
 
         -- 如果是安装程序，最好使用 lnk 文件，隐藏目录结构。
         -- win32 上在 <install> 目录下放置 lnk 文件
