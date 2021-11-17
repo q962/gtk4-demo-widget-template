@@ -27,13 +27,12 @@ const char* DATAPATH( const char* res_path )
 	if ( !install_dir )
 		install_dir = g_win32_get_package_installation_directory_of_module( NULL );
 #else
-	// TODO: 编译时的安装路径
 	if ( !install_dir )
 		install_dir = DATA_PREFIX;
 #endif
 
-	if ( *( install_dir + g_utf8_strlen( install_dir, -1 ) - 1 ) == '/' ||
-	     *( install_dir + g_utf8_strlen( install_dir, -1 ) - 1 ) == '\\' ) {
+	char last_ch = *( install_dir + strlen( install_dir ) - 1 );
+	if ( last_ch == '/' || last_ch == '\\' ) {
 		g_string_printf( real_path, "%s%s/%s/%s", install_dir, "share", APPID, res_path );
 	}
 	else {
