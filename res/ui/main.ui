@@ -8,206 +8,229 @@
     <property name="height-request">600</property>
     <child>
       <object class="GtkBox">
+        <property name="orientation">vertical</property>
         <property name="visible">True</property>
-        <property name="can-focus">False</property>
         <child>
           <object class="GtkBox">
-            <property name="width-request">290</property>
-            <property name="visible">True</property>
-            <property name="can-focus">False</property>
-            <property name="orientation">vertical</property>
-            <style>
-              <class name="left_box"/>
-            </style>
             <child>
-              <object class="GtkLabel">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="label" translatable="yes">CREATIVE TIM</property>
-                <style>
-                  <class name="main_title"/>
-                </style>
+              <object class="GtkButton">
+                <property name="label">退出程序</property>
+                <signal name="clicked" handler="quit_program" object="window" swapped="yes"/>
               </object>
             </child>
             <child>
-              <object class="GtkBox">
-                <property name="orientation">vertical</property>
-                <style>
-                  <class name="main_title_sep"/>
-                </style>
-                <child>
-                  <object class="GtkSeparator">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                  </object>
-                </child>
+              <object class="GtkButton">
+                <property name="label">重新打开窗口</property>
+                <signal name="clicked" handler="reload_ui" object="app"/>
               </object>
             </child>
-            <child>
-              <object class="GtkScrolledWindow">
-                <property name="visible">True</property>
-                <property name="can-focus">True</property>
-                <property name="hscrollbar-policy">never</property>
-                <property name="vexpand">True</property>
-                <property name="valign">fill</property>
-                <child>
-                  <object class="GtkViewport">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <style>
-                      <class name="list-box" />
-                    </style>
-                    <child>
-                      <object class="GtkBox" id="btns">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="valign">start</property>
-                        <property name="orientation">vertical</property>
-                        <property name="spacing">9</property>
-                        <property name="baseline-position">top</property>
-                        <child>
-                          <object class="Button1">
-                            <property name="icon-text"> &#xe614;</property>
-                            <property name="text">    Dashboard</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="Button1">
-                            <property name="icon-text"> &#xe7d5;</property>
-                            <property name="text">    User Profile</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="Button1">
-                            <property name="icon-text"> &#xe625;</property>
-                            <property name="text">    Table List</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="Button1">
-                            <property name="icon-text"> &#xe7a6;</property>
-                            <property name="text">    Typography</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="Button1">
-                            <property name="icon-text"> &#xe612;</property>
-                            <property name="text">    Icons</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="Button1">
-                            <property name="icon-text"> &#xe786;</property>
-                            <property name="text">    Maps</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="Button1">
-                            <property name="icon-text"> &#xec4d;</property>
-                            <property name="text">    Notificattions</property>
-                          </object>
-                        </child>
-                        <style>
-                          <class name="btns"/>
-                        </style>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-              </object>
-            </child>
-            <style>
-              <class name="left_box"/>
-            </style>
           </object>
         </child>
         <child>
           <object class="GtkBox">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
-            <property name="orientation">vertical</property>
-            <property name="hexpand">True</property>
-            <property name="vexpand">True</property>
             <child>
               <object class="GtkBox">
+                <property name="width-request">290</property>
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
+                <property name="orientation">vertical</property>
+                <style>
+                  <class name="left_box"/>
+                </style>
                 <child>
                   <object class="GtkLabel">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">Material Dashboard</property>
+                    <property name="label" translatable="yes">CREATIVE TIM</property>
+                    <style>
+                      <class name="main_title"/>
+                    </style>
                   </object>
                 </child>
                 <child>
                   <object class="GtkBox">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="hexpand">True</property>
-                    <property name="halign">end</property>
+                    <property name="orientation">vertical</property>
+                    <style>
+                      <class name="main_title_sep"/>
+                    </style>
                     <child>
-                      <object class="GtkEntry">
+                      <object class="GtkSeparator">
                         <property name="visible">True</property>
-                        <property name="can-focus">True</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkButton">
-                        <property name="visible">True</property>
-                        <property name="can-focus">True</property>
-                        <property name="receives-default">True</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkButton">
-                        <property name="visible">True</property>
-                        <property name="can-focus">True</property>
-                        <property name="receives-default">True</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkButton">
-                        <property name="visible">True</property>
-                        <property name="can-focus">True</property>
-                        <property name="receives-default">True</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkButton">
-                        <property name="visible">True</property>
-                        <property name="can-focus">True</property>
-                        <property name="receives-default">True</property>
+                        <property name="can-focus">False</property>
                       </object>
                     </child>
                   </object>
                 </child>
+                <child>
+                  <object class="GtkScrolledWindow">
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="hscrollbar-policy">never</property>
+                    <property name="vexpand">True</property>
+                    <property name="valign">fill</property>
+                    <child>
+                      <object class="GtkViewport">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <style>
+                          <class name="list-box" />
+                        </style>
+                        <child>
+                          <object class="GtkBox" id="btns">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="valign">start</property>
+                            <property name="orientation">vertical</property>
+                            <property name="spacing">9</property>
+                            <property name="baseline-position">top</property>
+                            <child>
+                              <object class="Button1">
+                                <property name="icon-text"> &#xe614;</property>
+                                <property name="text">    Dashboard</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="Button1">
+                                <property name="icon-text"> &#xe7d5;</property>
+                                <property name="text">    User Profile</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="Button1">
+                                <property name="icon-text"> &#xe625;</property>
+                                <property name="text">    Table List</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="Button1">
+                                <property name="icon-text"> &#xe7a6;</property>
+                                <property name="text">    Typography</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="Button1">
+                                <property name="icon-text"> &#xe612;</property>
+                                <property name="text">    Icons</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="Button1">
+                                <property name="icon-text"> &#xe786;</property>
+                                <property name="text">    Maps</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="Button1">
+                                <property name="icon-text"> &#xec4d;</property>
+                                <property name="text">    Notificattions</property>
+                              </object>
+                            </child>
+                            <style>
+                              <class name="btns"/>
+                            </style>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <style>
+                  <class name="left_box"/>
+                </style>
               </object>
             </child>
             <child>
-              <object class="GtkScrolledWindow">
+              <object class="GtkBox">
                 <property name="visible">True</property>
-                <property name="can-focus">True</property>
+                <property name="can-focus">False</property>
+                <property name="orientation">vertical</property>
                 <property name="hexpand">True</property>
                 <property name="vexpand">True</property>
                 <child>
-                  <object class="GtkViewport">
+                  <object class="GtkBox">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <child>
-                      <object class="GtkButton">
+                      <object class="GtkLabel">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="label">False</property>
+                        <property name="label" translatable="yes">Material Dashboard</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="hexpand">True</property>
+                        <property name="halign">end</property>
+                        <child>
+                          <object class="GtkEntry">
+                            <property name="visible">True</property>
+                            <property name="can-focus">True</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkButton">
+                            <property name="visible">True</property>
+                            <property name="can-focus">True</property>
+                            <property name="receives-default">True</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkButton">
+                            <property name="visible">True</property>
+                            <property name="can-focus">True</property>
+                            <property name="receives-default">True</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkButton">
+                            <property name="visible">True</property>
+                            <property name="can-focus">True</property>
+                            <property name="receives-default">True</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkButton">
+                            <property name="visible">True</property>
+                            <property name="can-focus">True</property>
+                            <property name="receives-default">True</property>
+                          </object>
+                        </child>
                       </object>
                     </child>
                   </object>
                 </child>
+                <child>
+                  <object class="GtkScrolledWindow">
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="hexpand">True</property>
+                    <property name="vexpand">True</property>
+                    <child>
+                      <object class="GtkViewport">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <child>
+                          <object class="GtkButton">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="label">False</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <style>
+                  <class name="right_box"/>
+                </style>
               </object>
             </child>
-            <style>
-              <class name="right_box"/>
-            </style>
           </object>
+
         </child>
       </object>
     </child>

@@ -34,6 +34,14 @@ static void reload_ui( GtkApplication* app )
 {
 	GtkBuilder* builder = gtk_builder_new();
 
+	GtkBuilderScope* builder_callback_symbol = gtk_builder_cscope_new();
+	gtk_builder_cscope_add_callback_symbol(
+	  GTK_BUILDER_CSCOPE( builder_callback_symbol ), "quit_program", G_CALLBACK( gtk_window_close ) );
+	gtk_builder_cscope_add_callback_symbol(
+	  GTK_BUILDER_CSCOPE( builder_callback_symbol ), "reload_ui", G_CALLBACK( reload_ui ) );
+	gtk_builder_set_scope( builder, builder_callback_symbol );
+
+	gtk_builder_expose_object( builder, "app", G_OBJECT( app ) );
 	gtk_builder_expose_object( builder, "Button1", G_OBJECT( button_1_new() ) );
 
 	GError* load_error = NULL;
@@ -44,11 +52,7 @@ static void reload_ui( GtkApplication* app )
 	}
 
 	GtkWindow* old_window = g_object_get_data( G_OBJECT( app ), "old_window" );
-	if ( old_window ) {
-		g_object_unref( old_window );
-	}
-
-	GtkWindow* window = GTK_WINDOW( gtk_builder_get_object( builder, "window" ) );
+	GtkWindow* window     = GTK_WINDOW( gtk_builder_get_object( builder, "window" ) );
 
 	g_object_set_data( G_OBJECT( app ), "old_window", window );
 
@@ -64,6 +68,12 @@ static void reload_ui( GtkApplication* app )
 		gtk_widget_add_controller( GTK_WIDGET( window ), motion_m );
 
 		g_string_free( ec_name, TRUE );
+	}
+
+	gtk_window_set_application( GTK_WINDOW( window ), app );
+
+	if ( old_window ) {
+		g_object_unref( old_window );
 	}
 
 	gtk_widget_show( GTK_WIDGET( window ) );
@@ -87,28 +97,6 @@ static void activate( GtkApplication* app, gpointer user_data )
 
 	g_free( cur_font_desc );
 
-	/* Construct a GtkBuilder instance and load our UI description */
-	GtkBuilder* builder = gtk_builder_new();
-
-	GtkBuilderScope* builder_callback_symbol = gtk_builder_cscope_new();
-	gtk_builder_cscope_add_callback_symbol(
-	  GTK_BUILDER_CSCOPE( builder_callback_symbol ), "quit_program", G_CALLBACK( gtk_window_close ) );
-	gtk_builder_cscope_add_callback_symbol(
-	  GTK_BUILDER_CSCOPE( builder_callback_symbol ), "reload_ui", G_CALLBACK( reload_ui ) );
-
-	gtk_builder_expose_object( builder, "app", G_OBJECT( app ) );
-	gtk_builder_set_scope( builder, builder_callback_symbol );
-
-	GError* load_error = NULL;
-	if ( !gtk_builder_add_from_file( builder, DATAPATH( "res/ui/quit_win.ui" ), &load_error ) ) {
-		g_error( _( "%s" ), load_error->message );
-		g_error_free( load_error );
-	}
-
-	/* Connect signal handlers to the constructed widgets. */
-	GObject* window = gtk_builder_get_object( builder, "window" );
-	gtk_window_set_application( GTK_WINDOW( window ), app );
-
 	GtkCssProvider* provider = gtk_css_provider_new();
 	gtk_css_provider_load_from_path( provider, DATAPATH( "res/css/main.css" ) );
 
@@ -118,17 +106,10 @@ static void activate( GtkApplication* app, gpointer user_data )
 	GtkCssProvider** provider_p = g_new( GtkCssProvider*, 1 );
 	*provider_p                 = provider;
 
-	lx_resource_monitor( DATAPATH( "res/css/main.css" ), G_CALLBACK( reload_css ), provider_p );
-	lx_resource_monitor( DATAPATH( "res/ui/main.ui" ), G_CALLBACK( reload_ui ), app );
-
 	reload_ui( app );
 
-	gtk_widget_show( GTK_WIDGET( window ) );
-
-	// g_object_unref( provider );
-
-	/* We do not need the builder any more */
-	g_object_unref( builder );
+	lx_resource_monitor( DATAPATH( "res/css/main.css" ), G_CALLBACK( reload_css ), provider_p );
+	lx_resource_monitor( DATAPATH( "res/ui/main.ui" ), G_CALLBACK( reload_ui ), app );
 }
 
 int main( int argc, char* argv[] )
