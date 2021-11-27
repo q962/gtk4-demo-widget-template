@@ -110,7 +110,7 @@ target("gtk4_demo1")
         end
     end)
 
-    on_install(function(target)
+    on_install("@windows", function(target)
         import("core.base.task")
         import("lib.detect.find_program")
         import("core.project.config")
