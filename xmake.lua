@@ -27,7 +27,12 @@ target("gtk4_demo1")
 
         import("xmakefuns", {alias = "lx", rootdir= ".xmake"});
 
-        os.addenv("PKG_CONFIG_PATH", config.get("GTK4_DEBUG_PKG_CONFIG_PATH"))
+        local PKG_CONFIG_PATH = config.get("PKG_CONFIG_PATH");
+        if  PKG_CONFIG_PATH and #PKG_CONFIG_PATH > 0 then
+            for i=1, #PKG_CONFIG_PATH do
+                os.addenv("PKG_CONFIG_PATH", PKG_CONFIG_PATH[i])
+            end
+        end
 
         lx.need(target,
             {"pkgconfig::gtk4 >= 4.4.0"},
