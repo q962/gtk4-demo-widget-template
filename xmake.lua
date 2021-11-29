@@ -112,10 +112,8 @@ target("gtk4_demo1")
         import("core.project.config")
         config.load();
 
-        -- target:add("runenv", vformat("$(APPID).RESPATH"), "res/");
-
-        if is_plat("mingw") then
-            target:add("runenv", "GTK_DATA_PREFIX", config.get("mingw"));
+        if is_plat("linux") then
+            target:set("runenv", config.get("APPID")..".DATAPAHT", "..");
         end
     end)
 
