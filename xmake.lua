@@ -1,7 +1,10 @@
----@diagnostic disable: undefined-global, undefined-field
+set_project("gtk4_demo_widget_template")
+set_xmakever("2.5.9")
+
 add_rules("mode.debug", "mode.release")
 
 target("gtk4_demo1")
+    set_default(true)
     set_kind("binary")
     set_pcheader("src/stdafx.h")
     set_runenv("PATH","$(GTK4_BIN_PATH)", os.getenv("PATH"));
@@ -12,9 +15,10 @@ target("gtk4_demo1")
     on_load(function(target)
         import("net.http")
         import("core.project.config")
+        import("core.project.project")
         config.load(".config")
 
-        config.set("APPID", "io.github.q962." .. target:name());
+        config.set("APPID", "io.github.q962." .. project.name());
         target:add("defines", "APPID=\""..config.get("APPID").."\"");
 
         if not os.isfile("./.xmake/xmakefuns.lua") then
@@ -194,7 +198,7 @@ target("gtk4_demo1")
 
         local function cp(a, b)
             a = a:gsub("\\", "/");
-            print("copy", a);
+            print("copy", a, "==>", b);
             os.cp(a,b);
         end
 
@@ -286,4 +290,21 @@ target("gtk4_demo1")
 
         -- 如果是安装程序，最好使用 lnk 文件，隐藏目录结构。
         -- win32 上在 <install> 目录下放置 lnk 文件
+    end)
+    on_install("@linux", function(target)
+        if target:installdir() == "" then
+            print("fail: no installdir");
+            os.exit();
+        end
+
+        local function cp(a, b)
+            a = a:gsub("\\", "/");
+            print("copy", a, "==>", b);
+            os.cp(a,b);
+        end
+
+        -- main programe
+        cp(target:targetfile(), path.join(target:installdir(), "bin") .. "/");
+        -- res
+        cp(path.join(os.projectdir(), "res"), path.join(target:installdir(), "share", vformat("$(APPID)")) .. "/");
     end)
