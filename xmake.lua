@@ -1,5 +1,8 @@
-set_project("gtk4_demo_widget_template")
 set_xmakever("2.5.9")
+
+set_project("gtk4_demo_widget_template")
+set_version("0.0.2")
+set_config("APPID", "io.github.q962.gtk4_demo_widget_template")
 
 add_rules("mode.debug", "mode.release")
 
@@ -12,14 +15,17 @@ target("gtk4_demo1")
     add_files("src/**.c")
     add_defines("UNICODE", "_UNICODE")
 
+    add_installfiles("(res/**)", {prefixdir="share/$(APPID)/"})
+
+    -- 这应该由 xmake 添加，且应该删除 $ORIGIN/../../<plat>/<arch>/<mode>
+    -- 如果有依赖需要手动添加
+    -- add_rpathdirs("@loader_path/../lib")
+
     on_load(function(target)
         import("net.http")
         import("core.project.config")
         import("core.project.project")
         config.load(".config")
-
-        config.set("APPID", "io.github.q962." .. project.name());
-        target:add("defines", "APPID=\""..config.get("APPID").."\"");
 
         if not os.isfile("./.xmake/xmakefuns.lua") then
             http.download("https://cdn.jsdelivr.net/gh/q962/xmake_funs/xmake.funs.lua", ".xmake/xmakefuns.lua");
@@ -43,21 +49,10 @@ target("gtk4_demo1")
             {"*glib-compile-resources", "sassc", "stat", "*ldd", "*pkg-config"}
         );
 
-        -- 无法判断文件是否被修改，如有必要，写成函数遍历资源文件和输出文件对比日期
-        os.run("glib-compile-resources --generate-header --sourcedir res res/res.xml --target src/res.h")
-        os.run("glib-compile-resources --generate-source --sourcedir res res/res.xml --target src/res.c")
-
-        if is_host("windows") then
-            target:add("links", "Gdi32") -- 加载字体函数
-        else
-            target:add("defines", format("DATA_PREFIX=\"%s\"", target:installdir()));
-        end
-
-        target:add("cflags", "-g3", "-gdwarf-2", "-Winvalid-pch");
-
         local path_prefix = vformat("$(buildir)/app_"..config.get("mode"));
 
         target:set("targetdir", path.join(path_prefix, "bin"));
+
         if not os.isdir(path.join(path_prefix, "bin")   ) then os.mkdir(path.join(path_prefix, "bin")  ); end
         if not os.isdir(path.join(path_prefix, "lib")   ) then os.mkdir(path.join(path_prefix, "lib")  ); end
         if not os.isdir(path.join(path_prefix, "share") ) then os.mkdir(path.join(path_prefix, "share")); end
@@ -65,7 +60,8 @@ target("gtk4_demo1")
             then os.mkdir(path.join(path_prefix, "share", config.get("APPID")));
         end
 
-        local res_dir_path = path.join(path_prefix, "share", config.get("APPID"));
+        local res_dir_path = path.join(path_prefix, "share", config.get("APPID")) .. '/';
+
         if not os.isdir(path.join(res_dir_path, "res")) then
             local res_dir = path.join(path.relative(os.projectdir(), res_dir_path), "res");
             os.cd(res_dir_path);
@@ -74,12 +70,34 @@ target("gtk4_demo1")
                 catch {
                     function(errors)
                         print(errors)
-                        cprint("${red}需要管理员权限，用于创建软连接");
-                        os.exit();
+                        cprint("${red}需要管理员权限，用于创建软连接，现在拷贝文件");
+                        os.cp(res_dir, "res");
                     end
                 }
             }
             os.cd(os.projectdir());
+        end
+    end)
+
+    before_build(function(target)
+        import("core.project.config")
+        import("core.project.project")
+        config.load(".config")
+
+        -- 缺陷：绝对路径应该由 xmake 执行
+        target:set("installdir", path.absolute(target:installdir() or "build/packing"))
+
+        -- 无法判断文件是否被修改，如有必要，写成函数遍历资源文件和输出文件对比日期
+        os.run("glib-compile-resources --generate-header --sourcedir res res/res.xml --target src/res.h")
+        os.run("glib-compile-resources --generate-source --sourcedir res res/res.xml --target src/res.c")
+
+        target:add("cflags", "-g3", "-gdwarf-2", "-Winvalid-pch");
+        target:add("defines", format('APPID="%s"', config.get("APPID")));
+
+        if is_host("windows") then
+            target:add("links", "Gdi32") -- 加载字体函数
+        else
+            target:add("defines", format("DATA_PREFIX=\"%s\"", target:installdir()));
         end
     end)
 
@@ -113,20 +131,15 @@ target("gtk4_demo1")
         config.load();
 
         if is_plat("linux") then
-            target:set("runenv", config.get("APPID")..".DATAPAHT", "..");
+            target:set("runenv", config.get("APPID")..".DATAPATH", vformat("$(projectdir)"));
         end
     end)
 
-    on_install("@windows", function(target)
+    after_install("@windows", function(target)
         import("core.base.task")
         import("lib.detect.find_program")
         import("core.project.config")
         config.load();
-
-        if target:installdir() == "" then
-            print("fail: no installdir");
-            os.exit();
-        end
 
         local dllsuffix = is_host("windows") and ".dll" or ".so";
         local exesuffix = is_host("windows") and ".exe" or "";
@@ -200,10 +213,6 @@ target("gtk4_demo1")
             os.cp(a,b);
         end
 
-        -- main programe
-        cp(target:targetfile(), path.join(target:installdir(), "bin") .. "/");
-        -- res
-        cp(path.join(os.projectdir(), "res"), path.join(target:installdir(), "share", vformat("$(APPID)")) .. "/");
         -- gdbus
         cp(pkg_vars["gio-2.0"].gdbus .. exesuffix, path.join(target:installdir(), "bin") .. "/");
         find_dep(pkg_vars["gio-2.0"].gdbus .. exesuffix)
@@ -272,6 +281,7 @@ target("gtk4_demo1")
         for _,v in ipairs(os.files(path.join(pkg_vars["gio-2.0"].giomoduledir, "*" .. dllsuffix))) do
             find_dep(v);
         end
+
         -- -- cp icons
         -- if is_plat("mingw") then
         --     cp(
@@ -288,21 +298,4 @@ target("gtk4_demo1")
 
         -- 如果是安装程序，最好使用 lnk 文件，隐藏目录结构。
         -- win32 上在 <install> 目录下放置 lnk 文件
-    end)
-    on_install("@linux", function(target)
-        if target:installdir() == "" then
-            print("fail: no installdir");
-            os.exit();
-        end
-
-        local function cp(a, b)
-            a = a:gsub("\\", "/");
-            print("copy", a, "==>", b);
-            os.cp(a,b);
-        end
-
-        -- main programe
-        cp(target:targetfile(), path.join(target:installdir(), "bin") .. "/");
-        -- res
-        cp(path.join(os.projectdir(), "res"), path.join(target:installdir(), "share", vformat("$(APPID)")) .. "/");
     end)
