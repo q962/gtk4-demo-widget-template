@@ -131,7 +131,7 @@ target("gtk4_demo1")
         config.load();
 
         if is_plat("linux") then
-            target:set("runenv", config.get("APPID")..".DATAPATH", vformat("$(projectdir)"));
+            target:set("runenv", config.get("APPID")..".DATAPATH", path.absolute("$(buildir)/app_"..config.get("mode")));
         end
     end)
 
