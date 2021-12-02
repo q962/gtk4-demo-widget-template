@@ -88,8 +88,8 @@ target("gtk4_demo1")
         target:set("installdir", path.absolute(target:installdir() or "build/packing"))
 
         -- 无法判断文件是否被修改，如有必要，写成函数遍历资源文件和输出文件对比日期
-        os.run("glib-compile-resources --generate-header --sourcedir res res/res.xml --target src/res.h")
-        os.run("glib-compile-resources --generate-source --sourcedir res res/res.xml --target src/res.c")
+        os.exec("glib-compile-resources --generate-header --sourcedir res res/res.xml --target src/res.h")
+        os.exec("glib-compile-resources --generate-source --sourcedir res res/res.xml --target src/res.c")
 
         target:add("cflags", "-g3", "-gdwarf-2", "-Winvalid-pch");
         target:add("defines", format('APPID="%s"', config.get("APPID")));
