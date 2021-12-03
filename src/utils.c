@@ -19,24 +19,35 @@ const char* DATAPATH( const char* res_path )
 		res_path += 1;
 
 	static const char* install_dir = NULL;
+	static const char* data_dir    = NULL;
 
-	if ( !install_dir )
-		install_dir = g_getenv( APPID ".DATAPATH" );
+	if ( !data_dir ) {
+		data_dir = g_getenv( APPID ".DATAPATH" );
+	}
+
+	if ( !data_dir && !install_dir ) {
+		install_dir = g_getenv( APPID ".PREFIX" );
 
 #ifdef G_OS_WIN32
-	if ( !install_dir )
-		install_dir = g_win32_get_package_installation_directory_of_module( NULL );
+		if ( !install_dir )
+			install_dir = g_win32_get_package_installation_directory_of_module( NULL );
 #else
-	if ( !install_dir )
-		install_dir = DATA_PREFIX;
+		if ( !install_dir )
+			install_dir = DATA_PREFIX;
 #endif
+	}
 
-	char last_ch = *( install_dir + strlen( install_dir ) - 1 );
-	if ( last_ch == '/' || last_ch == '\\' ) {
-		g_string_printf( real_path, "%s%s/%s/%s", install_dir, "share", APPID, res_path );
+	if ( data_dir ) {
+		g_string_printf( real_path, "%s/%s", data_dir, res_path );
 	}
 	else {
-		g_string_printf( real_path, "%s/%s/%s/%s", install_dir, "share", APPID, res_path );
+		char last_ch = *( install_dir + strlen( install_dir ) - 1 );
+		if ( last_ch == '/' || last_ch == '\\' ) {
+			g_string_printf( real_path, "%s%s/%s/%s", install_dir, "share", APPID, res_path );
+		}
+		else {
+			g_string_printf( real_path, "%s/%s/%s/%s", install_dir, "share", APPID, res_path );
+		}
 	}
 
 	return real_path->str;

@@ -130,9 +130,7 @@ target("gtk4_demo1")
         import("core.project.config")
         config.load();
 
-        if is_plat("linux") then
-            target:set("runenv", config.get("APPID")..".DATAPATH", path.absolute("$(buildir)/app_"..config.get("mode")));
-        end
+        target:set("runenv", config.get("APPID")..".DATAPATH", "$(projectdir)");
     end)
 
     after_install("@windows", function(target)
