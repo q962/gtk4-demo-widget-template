@@ -39,7 +39,7 @@ target("gtk4_demo1")
         lx();
 
         lx.need(target,
-            {"pkgconfig::gtk4 >= 4.4.0"},
+            {"pkgconfig::gtk4 >= 4.4.0", "pkgconfig::fontconfig"},
             {"*glib-compile-resources", "sassc", "stat", "*ldd", "*pkg-config"}
         );
     end)

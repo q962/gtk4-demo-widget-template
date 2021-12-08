@@ -117,6 +117,7 @@ int main( int argc, char* argv[] )
 #ifdef G_OS_WIN32
 	g_assert_cmpint( AddFontResourceEx( TDATAPATH( "res/font/iconfont.ttf" ), FR_PRIVATE, 0 ), >, 0 );
 #endif
+	g_assert( FcConfigAppFontAddDir( NULL, DATAPATH( "res/font/" ) ) == FcTrue );
 
 	g_resources_register( res_get_resource() );
 
