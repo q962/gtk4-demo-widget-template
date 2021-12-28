@@ -42,7 +42,7 @@ static void button_1_class_init( Button1Class* klass )
 	// 作用，将属性名与属性id绑定，在调用处使用属性名，在 _set_property/_get_propert 变成属性 id
 	g_object_class_install_properties( base_class, N_PROPERTY, pspec );
 
-	gtk_widget_class_set_template_from_resource( GTK_WIDGET_CLASS( klass ), "/fun/bilo/demo/ui/button_1.ui" );
+	gtk_widget_class_set_template_from_resource( GTK_WIDGET_CLASS( klass ), "/io/github/q962/ui/button_1.ui" );
 	// 调用 gtk_widget_get_template_child，设置私有属性。ID 如有需要使用下划线，包括 UI 描述文件
 	gtk_widget_class_bind_template_child_private( GTK_WIDGET_CLASS( klass ), Button1, icon_text );
 	gtk_widget_class_bind_template_child_private( GTK_WIDGET_CLASS( klass ), Button1, text );
