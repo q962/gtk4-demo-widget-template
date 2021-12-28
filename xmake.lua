@@ -24,7 +24,7 @@ target("gtk4_demo1")
     on_load(function(target)
         import("net.http")
         import("core.project.config")
-        config.load(".config")
+        config.load(".xmake.config")
 
         if not os.isfile("./.xmake/xmakefuns.lua") then
             http.download("https://cdn.jsdelivr.net/gh/q962/xmake_funs/xmakefuns.lua", ".xmake/xmakefuns.lua");
