@@ -15,7 +15,7 @@ target("gtk4_demo1")
     add_files("src/**.c")
     add_defines("UNICODE", "_UNICODE")
 
-    add_installfiles("(res/**)", {prefixdir="share/$(APPID)/"})
+    add_installfiles("res/**", {prefixdir="share/$(APPID)/"})
 
     -- 这应该由 xmake 添加，且应该删除 $ORIGIN/../../<plat>/<arch>/<mode>
     -- 如果有依赖需要手动添加
