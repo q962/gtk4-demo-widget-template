@@ -97,7 +97,7 @@ target("gtk4_demo1")
         target:set("runenv", config.get("APPID")..".DATAPATH", "$(projectdir)");
     end)
 
-    after_install("@windows", function(target)
+    after_install("mingw", function(target)
         import("xmakefuns", {alias = "lx", rootdir= ".xmake"});
 
         lx.downfile("pack_gtk4")
