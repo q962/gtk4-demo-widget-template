@@ -39,9 +39,7 @@ target("gtk4_demo1")
 
         import("xmakefuns", {alias = "lx", rootdir= ".xmake"});
 
-        lx();
-
-        lx.need(target,
+        lx:need(target,
             {"pkgconfig::gtk4 >= 4.4.0", "pkgconfig::fontconfig"},
             {"*glib-compile-resources", "sassc", "stat", "*ldd", "*pkg-config"}
         );
@@ -76,7 +74,7 @@ target("gtk4_demo1")
             local out_path = file_path:gsub("scss$","css");
 
             if config.get("has_sassc") then
-                if not os.isfile(out_path) or lx.do_stat(out_path, file_path) then
+                if not os.isfile(out_path) or lx:do_stat(out_path, file_path) then
                     os.run("sassc " .. file_path .. " " .. out_path)
                 else
                     cprint("${red}需要编译 " .. path.relative(file_path) .. " >> " .. path.relative(out_path))
@@ -100,8 +98,6 @@ target("gtk4_demo1")
     after_install("mingw", function(target)
         import("xmakefuns", {alias = "lx", rootdir= ".xmake"});
 
-        lx.downfile("pack_gtk4")
-        import("pack_gtk4", {alias = "lx", rootdir= ".xmake"});
-
-        lx.pack_gtk4(target)
+        lx:loadmodule("pack_gtk4")
+        lx:pack_gtk4(target)
     end)
