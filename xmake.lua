@@ -26,6 +26,9 @@ target("gtk4_demo1")
         import("core.project.config")
         config.load(".xmake.config")
 
+        -- 缺陷：绝对路径应该由 xmake 执行
+        target:set("installdir", path.absolute(target:installdir() or "build/packing"))
+
         if not os.isfile("./.xmake/xmakefuns.lua") then
             http.download("https://cdn.jsdelivr.net/gh/q962/xmake_funs/xmakefuns.lua", ".xmake/xmakefuns.lua");
             if not os.isfile("./.xmake/xmakefuns.lua") then
@@ -47,9 +50,6 @@ target("gtk4_demo1")
     before_build(function(target)
         import("core.project.config")
         config.load()
-
-        -- 缺陷：绝对路径应该由 xmake 执行
-        target:set("installdir", path.absolute(target:installdir() or "build/packing"))
 
         -- 无法判断文件是否被修改，如有必要，写成函数遍历资源文件和输出文件对比日期
         os.exec("glib-compile-resources --generate-header --sourcedir res res/res.xml --target src/res.h")
